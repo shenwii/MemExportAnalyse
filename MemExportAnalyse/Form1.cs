@@ -1,4 +1,4 @@
-using Accessibility;
+using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Windows.Forms.DataVisualization.Charting;
 
@@ -20,6 +20,10 @@ namespace MemExportAnalyse
         //数据长度
         int dataLen = 0;
         int byteLen = 0;
+        //上一次坐标
+        Point? prevPosition = null;
+        //点信息
+        List<string> pointLines = new List<string>();
         public Form1()
         {
             InitializeComponent();
@@ -48,7 +52,7 @@ namespace MemExportAnalyse
             chart1.Series.Clear();
         }
 
-        private void analyseClick(object sender, EventArgs e)
+        private void analyseClick(object? sender, EventArgs? e)
         {
             //切割正则表达式
             Regex splitReg = new Regex("\\s+");
@@ -57,8 +61,12 @@ namespace MemExportAnalyse
             //缓存数据（最大4个）
             Queue<int> numQueue = new Queue<int>();
 
+            if (String.IsNullOrEmpty(fileNameTextBox.Text))
+                return;
+
             //数据初始化
             datas.Clear();
+            pointLines.Clear();
             dataLen = 0;
             byteLen = 0;
 
@@ -67,17 +75,11 @@ namespace MemExportAnalyse
             int headerLen = 0;
             int vaildDataLen = 0;
 
-            //打开文件
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Multiselect = false;
-            DialogResult dialogResult = ofd.ShowDialog();
-            if (dialogResult != DialogResult.OK)
-                return;
             Stream? stream = null;
             StreamReader? streamReader = null;
             try
             {
-                stream = ofd.OpenFile();
+                stream = openFileDialog.OpenFile();
                 streamReader = new StreamReader(stream);
                 string? line;
                 while ((line = streamReader.ReadLine()) != null)
@@ -170,7 +172,34 @@ namespace MemExportAnalyse
                 string legend1 = "数据";
                 chart1.Series.Add(legend1);
                 chart1.Series[legend1].ChartType = SeriesChartType.Line;
-                datas.ForEach(num => { chart1.Series[legend1].Points.AddY(num); });
+                for (int i = 0; i < datas.Count; i++)
+                {
+                    int num = datas[i];
+                    chart1.Series[legend1].Points.Add(new DataPoint(i + 1, num));
+                }
+                //获取最大点
+                int max = int.MinValue;
+                List<DataPoint> maxPoints = new List<DataPoint>();
+                foreach (DataPoint point in chart1.Series[legend1].Points)
+                {
+                    if (max == (int)point.YValues[0])
+                    {
+                        maxPoints.Add(point);
+                    }
+                    else if ((int)point.YValues[0] > max)
+                    {
+                        max = (int)point.YValues[0];
+                        maxPoints.Clear();
+                        maxPoints.Add(point);
+                    }
+                }
+                maxPoints.ForEach(point =>
+                {
+                    drawPoint(point);
+                });
+                chart1.ChartAreas[0].AxisX.ScaleView.Zoomable = true;
+                chart1.ChartAreas[0].CursorX.AutoScroll = true;
+                chart1.ChartAreas[0].CursorX.IsUserSelectionEnabled = true;
             }
             catch (IOException err)
             {
@@ -193,6 +222,16 @@ namespace MemExportAnalyse
             }
         }
 
+        private void drawPoint(DataPoint point)
+        {
+            pointLines.Add($"M{pointLines.Count + 1}: X:{point.XValue}, Y:{point.YValues[0]}");
+            point.Label = $"M{pointLines.Count}";
+            point.MarkerStyle = MarkerStyle.Circle;
+            point.MarkerColor = Color.Red;
+            point.MarkerSize = 8;
+            pointsTextBox.Lines = pointLines.ToArray();
+        }
+
         private void export_Click(object sender, EventArgs e)
         {
             SaveFileDialog sfd = new SaveFileDialog();
@@ -213,11 +252,11 @@ namespace MemExportAnalyse
                         {
                             if (byteLen == 1)
                             {
-                                streamWriter.WriteLine(Convert.ToString((byte) num, 8 * byteLen).PadLeft(8 * byteLen, '0'));
+                                streamWriter.WriteLine(Convert.ToString((byte)num, 8 * byteLen).PadLeft(8 * byteLen, '0'));
                             }
                             else if (byteLen == 2)
                             {
-                                streamWriter.WriteLine(Convert.ToString((Int16) num, 8 * byteLen).PadLeft(8 * byteLen, '0'));
+                                streamWriter.WriteLine(Convert.ToString((Int16)num, 8 * byteLen).PadLeft(8 * byteLen, '0'));
                             }
                             else if (byteLen == 4)
                             {
@@ -270,6 +309,101 @@ namespace MemExportAnalyse
                 catch (IOException) { }
             }
 
+        }
+
+        private void fileSelectClick(object sender, EventArgs e)
+        {
+            //打开文件
+            DialogResult dialogResult = openFileDialog.ShowDialog();
+        }
+
+        private void fileIsSelected(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            fileNameTextBox.Text = openFileDialog.FileName;
+            analyseClick(null, null);
+        }
+
+        private void fileDragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data == null)
+                return;
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effect = DragDropEffects.Link;
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
+            }
+        }
+
+        private void fileDragDrop(object sender, DragEventArgs e)
+        {
+            if (e.Data == null)
+                return;
+            object data = e.Data.GetData(DataFormats.FileDrop);
+            if (data is Array)
+            {
+                string? path = (data as Array)?.GetValue(0)?.ToString();
+                if (path != null && File.Exists(path))
+                {
+                    openFileDialog.FileName = path;
+                    fileNameTextBox.Text = openFileDialog.FileName;
+                    analyseClick(null, null);
+                }
+            }
+        }
+
+        private void hasHeaderChanged(object sender, EventArgs e)
+        {
+            analyseClick(null, null);
+        }
+
+        private void chartsMouseMove(object sender, MouseEventArgs e)
+        {
+            var pos = e.Location;
+            if (prevPosition.HasValue && pos == prevPosition.Value)
+                return;
+            toolTip.RemoveAll();
+            prevPosition = pos;
+            var results = chart1.HitTest(pos.X, pos.Y, false,
+                                            ChartElementType.DataPoint);
+            foreach (var result in results)
+            {
+                if (result.ChartElementType == ChartElementType.DataPoint)
+                {
+                    var prop = result.Object as DataPoint;
+                    if (prop != null)
+                    {
+                        var pointXPixel = result.ChartArea.AxisX.ValueToPixelPosition(prop.XValue);
+                        var pointYPixel = result.ChartArea.AxisY.ValueToPixelPosition(prop.YValues[0]);
+
+                        if (Math.Abs(pos.X - pointXPixel) < 2 &&
+                            Math.Abs(pos.Y - pointYPixel) < 2)
+                        {
+                            toolTip.Show($"X:{prop.XValue}\nY:{prop.YValues[0]}", this.chart1, pos.X + 5, pos.Y - 15);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void chartsMouseClick(object sender, MouseEventArgs e)
+        {
+            var pos = e.Location;
+            var results = chart1.HitTest(pos.X, pos.Y, false,
+                                            ChartElementType.DataPoint);
+            foreach (var result in results)
+            {
+                if (result.ChartElementType == ChartElementType.DataPoint)
+                {
+                    var prop = result.Object as DataPoint;
+                    if (prop != null)
+                    {
+                        drawPoint(prop);
+                    }
+                }
+            }
         }
     }
 }
