@@ -1,3 +1,5 @@
+using System;
+using System.Data;
 using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Windows.Forms.DataVisualization.Charting;
@@ -23,10 +25,28 @@ namespace MemExportAnalyse
         //上一次坐标
         Point? prevPosition = null;
         //点信息
-        List<string> pointLines = new List<string>();
+        DataTable pointTable = new DataTable();
+        int pointIdx = 1;
+
         public Form1()
         {
             InitializeComponent();
+            pointTable.Columns.Add(new DataColumn("point", typeof(String)));
+            pointTable.Columns.Add(new DataColumn("xValue", typeof(Int32)));
+            pointTable.Columns.Add(new DataColumn("yValue", typeof(Double)));
+            pointTable.Columns.Add(new DataColumn("dataPoint", typeof(DataPoint)));
+            pointGrid.AutoGenerateColumns = true;
+            pointGrid.DataSource = pointTable;
+            pointGrid.Columns["point"].HeaderText = "点";
+            pointGrid.Columns["xValue"].HeaderText = "X";
+            pointGrid.Columns["yValue"].HeaderText = "Y";
+            pointGrid.Columns["dataPoint"].Visible = false;
+            var buttonColumn = new DataGridViewButtonColumn();
+            buttonColumn.Name = "delete";
+            buttonColumn.Text = "删除";
+            buttonColumn.HeaderText = "删除";
+            buttonColumn.UseColumnTextForButtonValue = true;
+            pointGrid.Columns.Add(buttonColumn);
         }
 
         private void systemSet(object? sender, EventArgs? e)
@@ -66,7 +86,8 @@ namespace MemExportAnalyse
 
             //数据初始化
             datas.Clear();
-            pointLines.Clear();
+            pointTable.Clear();
+            pointIdx = 1;
             dataLen = 0;
             byteLen = 0;
 
@@ -222,14 +243,25 @@ namespace MemExportAnalyse
             }
         }
 
+        private void undrawPoint(DataPoint? point)
+        {
+            if (point == null)
+                return;
+            point.Label = "";
+            point.MarkerStyle = MarkerStyle.None;
+        }
         private void drawPoint(DataPoint point)
         {
-            pointLines.Add($"M{pointLines.Count + 1}: X:{point.XValue}, Y:{point.YValues[0]}");
-            point.Label = $"M{pointLines.Count}";
+            point.Label = $"M{pointIdx++}";
             point.MarkerStyle = MarkerStyle.Circle;
             point.MarkerColor = Color.Red;
             point.MarkerSize = 8;
-            pointsTextBox.Lines = pointLines.ToArray();
+            DataRow row = pointTable.NewRow();
+            row["point"] = point.Label;
+            row["xValue"] = point.XValue;
+            row["yValue"] = point.YValues[0];
+            row["dataPoint"] = point;
+            pointTable.Rows.Add(row);
         }
 
         private void export_Click(object sender, EventArgs e)
@@ -403,6 +435,18 @@ namespace MemExportAnalyse
                         drawPoint(prop);
                     }
                 }
+            }
+        }
+
+        private void pointGridClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.ColumnIndex < 0 || e.RowIndex < 0)
+                return;
+            if (pointGrid.Columns[e.ColumnIndex].Name == "delete")
+            {
+                DataPoint? point = pointTable.Rows[e.RowIndex]["dataPoint"] as DataPoint;
+                undrawPoint(point);
+                pointTable.Rows.RemoveAt(e.RowIndex);
             }
         }
     }
