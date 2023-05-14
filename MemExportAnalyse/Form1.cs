@@ -80,7 +80,11 @@ namespace MemExportAnalyse
             Regex hexReg = new Regex("^[0-9abcdef]+$");
             //缓存数据（最大4个）
             Queue<int> numQueue = new Queue<int>();
-
+            if (progressBar1.Visible)
+            {
+                MessageBox.Show("当前正在处理中......");
+                return;
+            }
             if (String.IsNullOrEmpty(fileNameTextBox.Text))
                 return;
 
@@ -101,146 +105,181 @@ namespace MemExportAnalyse
             try
             {
                 stream = openFileDialog.OpenFile();
+            }
+            catch (Exception err)
+            {
+                MessageBox.Show("读取文件错误：" + err.Message);
+                return;
+            }
+            try
+            {
                 streamReader = new StreamReader(stream);
-                string? line;
-                while ((line = streamReader.ReadLine()) != null)
+            }
+            catch (Exception err)
+            {
+                try
                 {
-                    foreach (string data in splitReg.Split(line))
+                    stream.Close();
+                }
+                catch (IOException) { }
+                MessageBox.Show("读取文件错误：" + err.Message);
+                return;
+            }
+            progressBar1.Value = 0;
+            progressBar1.Visible = true;
+            Task.Run(() =>
+            {
+                try
+                {
+                    string? line;
+                    while ((line = streamReader.ReadLine()) != null)
                     {
-                        if (!hexReg.IsMatch(data))
-                            continue;
-                        int len = data.Length;
-                        if (dataLen != 0)
+                        progressBar1.BeginInvoke(new Action(() =>
                         {
-                            //和之前的数据长度不一致
-                            if (dataLen != len)
+                            progressBar1.Value = (int)(stream.Position * 1000 / stream.Length);
+                        }));
+                        foreach (string data in splitReg.Split(line))
+                        {
+                            if (!hexReg.IsMatch(data))
                                 continue;
-                        }
-                        else
-                        {
-                            //非合法数据
-                            if (len != 2 && len != 4 && len != 8)
-                                continue;
-                            dataLen = len;
-                            byteLen = len >> 1;
-                        }
-                        //转换成数字
-                        int num = 0;
-                        //转成单个字节放进去
-                        if (byteLen == 1)
-                        {
-                            num = Convert.ToByte(data, 8 * byteLen);
-                            numQueue.Enqueue(num & 0xff);
-                        }
-                        else if (byteLen == 2)
-                        {
-                            num = Convert.ToInt16(data, 8 * byteLen);
-                            numQueue.Enqueue((num >> 8) & 0xff);
-                            numQueue.Enqueue(num & 0xff);
-                        }
-                        else if (byteLen == 4)
-                        {
-                            num = Convert.ToInt32(data, 8 * byteLen);
-                            numQueue.Enqueue((num >> 24) & 0xff);
-                            numQueue.Enqueue((num >> 16) & 0xff);
-                            numQueue.Enqueue((num >> 8) & 0xff);
-                            numQueue.Enqueue(num & 0xff);
-                        }
-                        //删除多余数据
-                        int dl = numQueue.Count - 4;
-                        while (dl-- > 0)
-                            numQueue.Dequeue();
-                        if (hasHeader.Checked)
-                        {
-                            //如果是有效数据
-                            if (isVaild)
+                            int len = data.Length;
+                            if (dataLen != 0)
                             {
-                                //先判断是否是头部
-                                if (headerLen > 0)
+                                //和之前的数据长度不一致
+                                if (dataLen != len)
+                                    continue;
+                            }
+                            else
+                            {
+                                //非合法数据
+                                if (len != 2 && len != 4 && len != 8)
+                                    continue;
+                                dataLen = len;
+                                byteLen = len >> 1;
+                            }
+                            //转换成数字
+                            int num = 0;
+                            //转成单个字节放进去
+                            if (byteLen == 1)
+                            {
+                                num = Convert.ToByte(data, 8 * byteLen);
+                                numQueue.Enqueue(num & 0xff);
+                            }
+                            else if (byteLen == 2)
+                            {
+                                num = Convert.ToInt16(data, 8 * byteLen);
+                                numQueue.Enqueue((num >> 8) & 0xff);
+                                numQueue.Enqueue(num & 0xff);
+                            }
+                            else if (byteLen == 4)
+                            {
+                                num = Convert.ToInt32(data, 8 * byteLen);
+                                numQueue.Enqueue((num >> 24) & 0xff);
+                                numQueue.Enqueue((num >> 16) & 0xff);
+                                numQueue.Enqueue((num >> 8) & 0xff);
+                                numQueue.Enqueue(num & 0xff);
+                            }
+                            //删除多余数据
+                            int dl = numQueue.Count - 4;
+                            while (dl-- > 0)
+                                numQueue.Dequeue();
+                            if (hasHeader.Checked)
+                            {
+                                //如果是有效数据
+                                if (isVaild)
                                 {
-                                    headerLen -= byteLen;
+                                    //先判断是否是头部
+                                    if (headerLen > 0)
+                                    {
+                                        headerLen -= byteLen;
+                                    }
+                                    else
+                                    {
+                                        datas.Add(num);
+                                        vaildDataLen -= byteLen;
+                                        //数据读完
+                                        if (vaildDataLen <= 0)
+                                        {
+                                            isVaild = false;
+                                        }
+                                    }
                                 }
                                 else
                                 {
-                                    datas.Add(num);
-                                    vaildDataLen -= byteLen;
-                                    //数据读完
-                                    if (vaildDataLen <= 0)
+                                    if (numQueue.Count == 4 && numQueue.All(num => num == 0xfd))
                                     {
-                                        isVaild = false;
+                                        isVaild = true;
+                                        headerLen = HEADER_LEN;
+                                        vaildDataLen = DATA_LEN;
                                     }
                                 }
                             }
                             else
                             {
-                                if (numQueue.Count == 4 && numQueue.All(num => num == 0xfd))
-                                {
-                                    isVaild = true;
-                                    headerLen = HEADER_LEN;
-                                    vaildDataLen = DATA_LEN;
-                                }
+                                datas.Add(num);
                             }
                         }
-                        else
+                    }
+                    this.BeginInvoke(new Action(() =>
+                    {
+                        chart1.Series.Clear();
+                        chart1.ChartAreas.Clear();
+                        chart1.ChartAreas.Add(new ChartArea(""));
+                        string legend1 = "数据";
+                        chart1.Series.Add(legend1);
+                        chart1.Series[legend1].ChartType = SeriesChartType.Line;
+                        for (int i = 0; i < datas.Count; i++)
                         {
-                            datas.Add(num);
+                            int num = datas[i];
+                            chart1.Series[legend1].Points.Add(new DataPoint(i + 1, num));
                         }
-                    }
+                        //获取最大点
+                        int max = int.MinValue;
+                        List<DataPoint> maxPoints = new List<DataPoint>();
+                        foreach (DataPoint point in chart1.Series[legend1].Points)
+                        {
+                            if (max == (int)point.YValues[0])
+                            {
+                                maxPoints.Add(point);
+                            }
+                            else if ((int)point.YValues[0] > max)
+                            {
+                                max = (int)point.YValues[0];
+                                maxPoints.Clear();
+                                maxPoints.Add(point);
+                            }
+                        }
+                        maxPoints.ForEach(point =>
+                        {
+                            drawPoint(point);
+                        });
+                        chart1.ChartAreas[0].AxisX.ScaleView.Zoomable = true;
+                        chart1.ChartAreas[0].CursorX.AutoScroll = true;
+                        chart1.ChartAreas[0].CursorX.IsUserSelectionEnabled = true;
+                    }));
                 }
-                chart1.Series.Clear();
-                chart1.ChartAreas.Clear();
-                chart1.ChartAreas.Add(new ChartArea(""));
-                string legend1 = "数据";
-                chart1.Series.Add(legend1);
-                chart1.Series[legend1].ChartType = SeriesChartType.Line;
-                for (int i = 0; i < datas.Count; i++)
+                catch (Exception err)
                 {
-                    int num = datas[i];
-                    chart1.Series[legend1].Points.Add(new DataPoint(i + 1, num));
+                    MessageBox.Show("读取文件错误：" + err.Message);
                 }
-                //获取最大点
-                int max = int.MinValue;
-                List<DataPoint> maxPoints = new List<DataPoint>();
-                foreach (DataPoint point in chart1.Series[legend1].Points)
+                finally
                 {
-                    if (max == (int)point.YValues[0])
+                    progressBar1.BeginInvoke(new Action(() =>
                     {
-                        maxPoints.Add(point);
-                    }
-                    else if ((int)point.YValues[0] > max)
+                        progressBar1.Visible = false;
+                    }));
+                    try
                     {
-                        max = (int)point.YValues[0];
-                        maxPoints.Clear();
-                        maxPoints.Add(point);
-                    }
-                }
-                maxPoints.ForEach(point =>
-                {
-                    drawPoint(point);
-                });
-                chart1.ChartAreas[0].AxisX.ScaleView.Zoomable = true;
-                chart1.ChartAreas[0].CursorX.AutoScroll = true;
-                chart1.ChartAreas[0].CursorX.IsUserSelectionEnabled = true;
-            }
-            catch (IOException err)
-            {
-                MessageBox.Show("读取文件错误：" + err.Message);
-            }
-            finally
-            {
-                try
-                {
-                    if (streamReader != null)
                         streamReader.Close();
-                }
-                catch (IOException) { }
-                try
-                {
-                    if (stream != null)
+                    }
+                    catch (IOException) { }
+                    try
+                    {
                         stream.Close();
+                    }
+                    catch (IOException) { }
                 }
-                catch (IOException) { }
-            }
+            });
         }
 
         private void undrawPoint(DataPoint? point)

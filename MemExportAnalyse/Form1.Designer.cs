@@ -29,9 +29,9 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
             flowLayoutPanel1 = new FlowLayoutPanel();
             groupSystem = new GroupBox();
             radioHex = new RadioButton();
@@ -44,11 +44,13 @@
             analyse = new Button();
             panel2 = new Panel();
             export = new Button();
+            progressBar1 = new ProgressBar();
             openFileDialog = new OpenFileDialog();
             toolTip = new ToolTip(components);
             chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             panel3 = new Panel();
             pointGrid = new DataGridView();
+            errorProvider1 = new ErrorProvider(components);
             flowLayoutPanel1.SuspendLayout();
             groupSystem.SuspendLayout();
             panel1.SuspendLayout();
@@ -56,6 +58,7 @@
             ((System.ComponentModel.ISupportInitialize)chart1).BeginInit();
             panel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pointGrid).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)errorProvider1).BeginInit();
             SuspendLayout();
             // 
             // flowLayoutPanel1
@@ -177,22 +180,33 @@
             // panel2
             // 
             panel2.Controls.Add(export);
+            panel2.Controls.Add(progressBar1);
             panel2.Dock = DockStyle.Bottom;
-            panel2.Location = new Point(0, 410);
+            panel2.Location = new Point(0, 400);
             panel2.Name = "panel2";
-            panel2.Size = new Size(815, 40);
+            panel2.Size = new Size(815, 50);
             panel2.TabIndex = 4;
             // 
             // export
             // 
             export.Dock = DockStyle.Right;
-            export.Location = new Point(735, 0);
+            export.Location = new Point(735, 20);
             export.Name = "export";
-            export.Size = new Size(80, 40);
+            export.Size = new Size(80, 30);
             export.TabIndex = 1;
             export.Text = "导出";
             export.UseVisualStyleBackColor = true;
             export.Click += export_Click;
+            // 
+            // progressBar1
+            // 
+            progressBar1.Dock = DockStyle.Top;
+            progressBar1.Location = new Point(0, 0);
+            progressBar1.Maximum = 1000;
+            progressBar1.Name = "progressBar1";
+            progressBar1.Size = new Size(815, 20);
+            progressBar1.TabIndex = 2;
+            progressBar1.Visible = false;
             // 
             // openFileDialog
             // 
@@ -201,18 +215,18 @@
             // 
             // chart1
             // 
-            chartArea1.Name = "ChartArea1";
-            chart1.ChartAreas.Add(chartArea1);
+            chartArea2.Name = "ChartArea1";
+            chart1.ChartAreas.Add(chartArea2);
             chart1.Dock = DockStyle.Fill;
-            legend1.Name = "Legend1";
-            chart1.Legends.Add(legend1);
+            legend2.Name = "Legend1";
+            chart1.Legends.Add(legend2);
             chart1.Location = new Point(0, 0);
             chart1.Name = "chart1";
-            series1.ChartArea = "ChartArea1";
-            series1.Legend = "Legend1";
-            series1.Name = "Series1";
-            chart1.Series.Add(series1);
-            chart1.Size = new Size(605, 332);
+            series2.ChartArea = "ChartArea1";
+            series2.Legend = "Legend1";
+            series2.Name = "Series1";
+            chart1.Series.Add(series2);
+            chart1.Size = new Size(605, 322);
             chart1.TabIndex = 5;
             chart1.Text = "chart1";
             chart1.MouseClick += chartsMouseClick;
@@ -225,7 +239,7 @@
             panel3.Dock = DockStyle.Fill;
             panel3.Location = new Point(0, 78);
             panel3.Name = "panel3";
-            panel3.Size = new Size(815, 332);
+            panel3.Size = new Size(815, 322);
             panel3.TabIndex = 7;
             // 
             // pointGrid
@@ -241,9 +255,13 @@
             pointGrid.ReadOnly = true;
             pointGrid.RowHeadersVisible = false;
             pointGrid.RowTemplate.Height = 29;
-            pointGrid.Size = new Size(210, 332);
+            pointGrid.Size = new Size(210, 322);
             pointGrid.TabIndex = 6;
             pointGrid.CellClick += pointGridClick;
+            // 
+            // errorProvider1
+            // 
+            errorProvider1.ContainerControl = this;
             // 
             // Form1
             // 
@@ -266,6 +284,7 @@
             ((System.ComponentModel.ISupportInitialize)chart1).EndInit();
             panel3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)pointGrid).EndInit();
+            ((System.ComponentModel.ISupportInitialize)errorProvider1).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -289,5 +308,7 @@
         private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
         private Panel panel3;
         private DataGridView pointGrid;
+        private ProgressBar progressBar1;
+        private ErrorProvider errorProvider1;
     }
 }
