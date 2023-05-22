@@ -29,9 +29,9 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             flowLayoutPanel1 = new FlowLayoutPanel();
             groupSystem = new GroupBox();
             radioHex = new RadioButton();
@@ -51,6 +51,7 @@
             panel3 = new Panel();
             pointGrid = new DataGridView();
             errorProvider1 = new ErrorProvider(components);
+            checkBoxCharts = new CheckBox();
             flowLayoutPanel1.SuspendLayout();
             groupSystem.SuspendLayout();
             panel1.SuspendLayout();
@@ -66,6 +67,7 @@
             flowLayoutPanel1.AutoSize = true;
             flowLayoutPanel1.Controls.Add(groupSystem);
             flowLayoutPanel1.Controls.Add(hasHeader);
+            flowLayoutPanel1.Controls.Add(checkBoxCharts);
             flowLayoutPanel1.Dock = DockStyle.Top;
             flowLayoutPanel1.Location = new Point(0, 0);
             flowLayoutPanel1.Name = "flowLayoutPanel1";
@@ -215,17 +217,17 @@
             // 
             // chart1
             // 
-            chartArea2.Name = "ChartArea1";
-            chart1.ChartAreas.Add(chartArea2);
+            chartArea1.Name = "ChartArea1";
+            chart1.ChartAreas.Add(chartArea1);
             chart1.Dock = DockStyle.Fill;
-            legend2.Name = "Legend1";
-            chart1.Legends.Add(legend2);
+            legend1.Name = "Legend1";
+            chart1.Legends.Add(legend1);
             chart1.Location = new Point(0, 0);
             chart1.Name = "chart1";
-            series2.ChartArea = "ChartArea1";
-            series2.Legend = "Legend1";
-            series2.Name = "Series1";
-            chart1.Series.Add(series2);
+            series1.ChartArea = "ChartArea1";
+            series1.Legend = "Legend1";
+            series1.Name = "Series1";
+            chart1.Series.Add(series1);
             chart1.Size = new Size(605, 322);
             chart1.TabIndex = 5;
             chart1.Text = "chart1";
@@ -262,6 +264,17 @@
             // errorProvider1
             // 
             errorProvider1.ContainerControl = this;
+            // 
+            // checkBoxCharts
+            // 
+            checkBoxCharts.Checked = true;
+            checkBoxCharts.CheckState = CheckState.Checked;
+            checkBoxCharts.Location = new Point(515, 3);
+            checkBoxCharts.Name = "checkBoxCharts";
+            checkBoxCharts.Size = new Size(100, 50);
+            checkBoxCharts.TabIndex = 2;
+            checkBoxCharts.Text = "画折线图";
+            checkBoxCharts.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
@@ -310,5 +323,6 @@
         private DataGridView pointGrid;
         private ProgressBar progressBar1;
         private ErrorProvider errorProvider1;
+        private CheckBox checkBoxCharts;
     }
 }

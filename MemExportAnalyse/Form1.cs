@@ -224,6 +224,8 @@ namespace MemExportAnalyse
                     {
                         chart1.Series.Clear();
                         chart1.ChartAreas.Clear();
+                        if (!checkBoxCharts.Checked)
+                            return;
                         chart1.ChartAreas.Add(new ChartArea(""));
                         string legend1 = "Êý¾Ý";
                         chart1.Series.Add(legend1);
