@@ -26,7 +26,6 @@ namespace MemExportAnalyse
         Point? prevPosition = null;
         //点信息
         DataTable pointTable = new DataTable();
-        int pointIdx = 1;
 
         public Form1()
         {
@@ -91,7 +90,6 @@ namespace MemExportAnalyse
             //数据初始化
             datas.Clear();
             pointTable.Clear();
-            pointIdx = 1;
             dataLen = 0;
             byteLen = 0;
 
@@ -269,17 +267,17 @@ namespace MemExportAnalyse
                     progressBar1.BeginInvoke(new Action(() =>
                     {
                         progressBar1.Visible = false;
+                        try
+                        {
+                            streamReader.Close();
+                        }
+                        catch (IOException) { }
+                        try
+                        {
+                            stream.Close();
+                        }
+                        catch (IOException) { }
                     }));
-                    try
-                    {
-                        streamReader.Close();
-                    }
-                    catch (IOException) { }
-                    try
-                    {
-                        stream.Close();
-                    }
-                    catch (IOException) { }
                 }
             });
         }
@@ -293,7 +291,16 @@ namespace MemExportAnalyse
         }
         private void drawPoint(DataPoint point)
         {
-            point.Label = $"M{pointIdx++}";
+            if (pointTable.Rows.Count == 0)
+            {
+                point.Label = $"M1";
+            }
+            else
+            {
+                string? oldLabel = pointTable.Rows[^1]["point"] as string;
+                int idx = Convert.ToInt32(oldLabel.Substring(1));
+                point.Label = $"M{++idx}";
+            }
             point.MarkerStyle = MarkerStyle.Circle;
             point.MarkerColor = Color.Red;
             point.MarkerSize = 8;
@@ -481,13 +488,25 @@ namespace MemExportAnalyse
 
         private void pointGridClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex < 0 || e.RowIndex < 0)
+            if (e.ColumnIndex < 0)
                 return;
             if (pointGrid.Columns[e.ColumnIndex].Name == "delete")
             {
-                DataPoint? point = pointTable.Rows[e.RowIndex]["dataPoint"] as DataPoint;
-                undrawPoint(point);
-                pointTable.Rows.RemoveAt(e.RowIndex);
+                if (e.RowIndex < 0)
+                {
+                    foreach (DataRow item in pointTable.Rows)
+                    {
+                        DataPoint? point = item["dataPoint"] as DataPoint;
+                        undrawPoint(point);
+                    }
+                    pointTable.Rows.Clear();
+                }
+                else
+                {
+                    DataPoint? point = pointTable.Rows[e.RowIndex]["dataPoint"] as DataPoint;
+                    undrawPoint(point);
+                    pointTable.Rows.RemoveAt(e.RowIndex);
+                }
             }
         }
     }

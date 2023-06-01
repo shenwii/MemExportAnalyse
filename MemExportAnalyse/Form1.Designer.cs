@@ -38,6 +38,7 @@
             radioDec = new RadioButton();
             radioBin = new RadioButton();
             hasHeader = new CheckBox();
+            checkBoxCharts = new CheckBox();
             panel1 = new Panel();
             fileNameTextBox = new TextBox();
             fileSelect = new Button();
@@ -51,7 +52,6 @@
             panel3 = new Panel();
             pointGrid = new DataGridView();
             errorProvider1 = new ErrorProvider(components);
-            checkBoxCharts = new CheckBox();
             flowLayoutPanel1.SuspendLayout();
             groupSystem.SuspendLayout();
             panel1.SuspendLayout();
@@ -132,6 +132,17 @@
             hasHeader.Text = "头祯数据";
             hasHeader.UseVisualStyleBackColor = true;
             hasHeader.CheckStateChanged += hasHeaderChanged;
+            // 
+            // checkBoxCharts
+            // 
+            checkBoxCharts.Checked = true;
+            checkBoxCharts.CheckState = CheckState.Checked;
+            checkBoxCharts.Location = new Point(515, 3);
+            checkBoxCharts.Name = "checkBoxCharts";
+            checkBoxCharts.Size = new Size(100, 50);
+            checkBoxCharts.TabIndex = 2;
+            checkBoxCharts.Text = "画折线图";
+            checkBoxCharts.UseVisualStyleBackColor = true;
             // 
             // panel1
             // 
@@ -265,17 +276,6 @@
             // 
             errorProvider1.ContainerControl = this;
             // 
-            // checkBoxCharts
-            // 
-            checkBoxCharts.Checked = true;
-            checkBoxCharts.CheckState = CheckState.Checked;
-            checkBoxCharts.Location = new Point(515, 3);
-            checkBoxCharts.Name = "checkBoxCharts";
-            checkBoxCharts.Size = new Size(100, 50);
-            checkBoxCharts.TabIndex = 2;
-            checkBoxCharts.Text = "画折线图";
-            checkBoxCharts.UseVisualStyleBackColor = true;
-            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -286,7 +286,7 @@
             Controls.Add(panel1);
             Controls.Add(flowLayoutPanel1);
             Name = "Form1";
-            Text = "MemExportAnalyse";
+            Text = "MemExportAnalyse 1.0.4";
             Load += mainFormLoad;
             flowLayoutPanel1.ResumeLayout(false);
             groupSystem.ResumeLayout(false);
