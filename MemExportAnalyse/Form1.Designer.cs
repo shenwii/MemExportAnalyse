@@ -39,6 +39,14 @@
             radioBin = new RadioButton();
             hasHeader = new CheckBox();
             checkBoxCharts = new CheckBox();
+            label1 = new Label();
+            textHeader = new TextBox();
+            label2 = new Label();
+            textHeaderLen = new TextBox();
+            label3 = new Label();
+            textMin = new TextBox();
+            label4 = new Label();
+            textMax = new TextBox();
             panel1 = new Panel();
             fileNameTextBox = new TextBox();
             fileSelect = new Button();
@@ -51,7 +59,6 @@
             chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             panel3 = new Panel();
             pointGrid = new DataGridView();
-            errorProvider1 = new ErrorProvider(components);
             flowLayoutPanel1.SuspendLayout();
             groupSystem.SuspendLayout();
             panel1.SuspendLayout();
@@ -59,7 +66,6 @@
             ((System.ComponentModel.ISupportInitialize)chart1).BeginInit();
             panel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pointGrid).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)errorProvider1).BeginInit();
             SuspendLayout();
             // 
             // flowLayoutPanel1
@@ -68,10 +74,18 @@
             flowLayoutPanel1.Controls.Add(groupSystem);
             flowLayoutPanel1.Controls.Add(hasHeader);
             flowLayoutPanel1.Controls.Add(checkBoxCharts);
+            flowLayoutPanel1.Controls.Add(label1);
+            flowLayoutPanel1.Controls.Add(textHeader);
+            flowLayoutPanel1.Controls.Add(label2);
+            flowLayoutPanel1.Controls.Add(textHeaderLen);
+            flowLayoutPanel1.Controls.Add(label3);
+            flowLayoutPanel1.Controls.Add(textMin);
+            flowLayoutPanel1.Controls.Add(label4);
+            flowLayoutPanel1.Controls.Add(textMax);
             flowLayoutPanel1.Dock = DockStyle.Top;
             flowLayoutPanel1.Location = new Point(0, 0);
             flowLayoutPanel1.Name = "flowLayoutPanel1";
-            flowLayoutPanel1.Size = new Size(815, 56);
+            flowLayoutPanel1.Size = new Size(986, 56);
             flowLayoutPanel1.TabIndex = 1;
             // 
             // groupSystem
@@ -81,7 +95,7 @@
             groupSystem.Controls.Add(radioBin);
             groupSystem.Location = new Point(3, 3);
             groupSystem.Name = "groupSystem";
-            groupSystem.Size = new Size(400, 50);
+            groupSystem.Size = new Size(277, 50);
             groupSystem.TabIndex = 0;
             groupSystem.TabStop = false;
             groupSystem.Text = "输出进制";
@@ -89,7 +103,7 @@
             // radioHex
             // 
             radioHex.AutoSize = true;
-            radioHex.Location = new Point(275, 20);
+            radioHex.Location = new Point(182, 20);
             radioHex.Name = "radioHex";
             radioHex.Size = new Size(77, 19);
             radioHex.TabIndex = 0;
@@ -102,7 +116,7 @@
             // 
             radioDec.AutoSize = true;
             radioDec.Checked = true;
-            radioDec.Location = new Point(145, 20);
+            radioDec.Location = new Point(100, 20);
             radioDec.Name = "radioDec";
             radioDec.Size = new Size(64, 19);
             radioDec.TabIndex = 0;
@@ -125,7 +139,8 @@
             // 
             // hasHeader
             // 
-            hasHeader.Location = new Point(409, 3);
+            hasHeader.Dock = DockStyle.Left;
+            hasHeader.Location = new Point(286, 3);
             hasHeader.Name = "hasHeader";
             hasHeader.Size = new Size(100, 50);
             hasHeader.TabIndex = 1;
@@ -137,12 +152,93 @@
             // 
             checkBoxCharts.Checked = true;
             checkBoxCharts.CheckState = CheckState.Checked;
-            checkBoxCharts.Location = new Point(515, 3);
+            checkBoxCharts.Dock = DockStyle.Left;
+            checkBoxCharts.Location = new Point(392, 3);
             checkBoxCharts.Name = "checkBoxCharts";
             checkBoxCharts.Size = new Size(100, 50);
             checkBoxCharts.TabIndex = 2;
             checkBoxCharts.Text = "画折线图";
             checkBoxCharts.UseVisualStyleBackColor = true;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Dock = DockStyle.Left;
+            label1.Location = new Point(498, 0);
+            label1.Name = "label1";
+            label1.Size = new Size(33, 56);
+            label1.TabIndex = 3;
+            label1.Text = "头帧";
+            label1.Visible = false;
+            // 
+            // textHeader
+            // 
+            textHeader.Dock = DockStyle.Left;
+            textHeader.Location = new Point(537, 3);
+            textHeader.Name = "textHeader";
+            textHeader.Size = new Size(73, 23);
+            textHeader.TabIndex = 4;
+            textHeader.Text = "fdfdfdfd";
+            textHeader.Visible = false;
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Dock = DockStyle.Left;
+            label2.Location = new Point(616, 0);
+            label2.Name = "label2";
+            label2.Size = new Size(46, 56);
+            label2.TabIndex = 5;
+            label2.Text = "头长度";
+            label2.Visible = false;
+            // 
+            // textHeaderLen
+            // 
+            textHeaderLen.Dock = DockStyle.Left;
+            textHeaderLen.Location = new Point(668, 3);
+            textHeaderLen.Name = "textHeaderLen";
+            textHeaderLen.Size = new Size(47, 23);
+            textHeaderLen.TabIndex = 6;
+            textHeaderLen.Text = "24";
+            textHeaderLen.Visible = false;
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Dock = DockStyle.Left;
+            label3.Location = new Point(721, 0);
+            label3.Name = "label3";
+            label3.Size = new Size(46, 56);
+            label3.TabIndex = 7;
+            label3.Text = "帧范围";
+            // 
+            // textMin
+            // 
+            textMin.Dock = DockStyle.Left;
+            textMin.Location = new Point(773, 3);
+            textMin.Name = "textMin";
+            textMin.Size = new Size(53, 23);
+            textMin.TabIndex = 8;
+            textMin.Text = "0";
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Dock = DockStyle.Left;
+            label4.Location = new Point(832, 0);
+            label4.Name = "label4";
+            label4.Size = new Size(15, 56);
+            label4.TabIndex = 9;
+            label4.Text = "~";
+            // 
+            // textMax
+            // 
+            textMax.Dock = DockStyle.Left;
+            textMax.Location = new Point(853, 3);
+            textMax.Name = "textMax";
+            textMax.Size = new Size(53, 23);
+            textMax.TabIndex = 10;
+            textMax.Text = "8192";
             // 
             // panel1
             // 
@@ -152,7 +248,7 @@
             panel1.Dock = DockStyle.Top;
             panel1.Location = new Point(0, 56);
             panel1.Name = "panel1";
-            panel1.Size = new Size(815, 22);
+            panel1.Size = new Size(986, 22);
             panel1.TabIndex = 2;
             // 
             // fileNameTextBox
@@ -163,7 +259,7 @@
             fileNameTextBox.Margin = new Padding(3, 2, 3, 2);
             fileNameTextBox.Name = "fileNameTextBox";
             fileNameTextBox.ReadOnly = true;
-            fileNameTextBox.Size = new Size(655, 23);
+            fileNameTextBox.Size = new Size(826, 23);
             fileNameTextBox.TabIndex = 2;
             fileNameTextBox.DragDrop += fileDragDrop;
             fileNameTextBox.DragEnter += fileDragEnter;
@@ -171,7 +267,7 @@
             // fileSelect
             // 
             fileSelect.Dock = DockStyle.Right;
-            fileSelect.Location = new Point(655, 0);
+            fileSelect.Location = new Point(826, 0);
             fileSelect.Name = "fileSelect";
             fileSelect.Size = new Size(80, 22);
             fileSelect.TabIndex = 1;
@@ -182,7 +278,7 @@
             // analyse
             // 
             analyse.Dock = DockStyle.Right;
-            analyse.Location = new Point(735, 0);
+            analyse.Location = new Point(906, 0);
             analyse.Name = "analyse";
             analyse.Size = new Size(80, 22);
             analyse.TabIndex = 0;
@@ -195,15 +291,15 @@
             panel2.Controls.Add(export);
             panel2.Controls.Add(progressBar1);
             panel2.Dock = DockStyle.Bottom;
-            panel2.Location = new Point(0, 400);
+            panel2.Location = new Point(0, 459);
             panel2.Name = "panel2";
-            panel2.Size = new Size(815, 50);
+            panel2.Size = new Size(986, 50);
             panel2.TabIndex = 4;
             // 
             // export
             // 
             export.Dock = DockStyle.Right;
-            export.Location = new Point(735, 20);
+            export.Location = new Point(906, 20);
             export.Name = "export";
             export.Size = new Size(80, 30);
             export.TabIndex = 1;
@@ -217,7 +313,7 @@
             progressBar1.Location = new Point(0, 0);
             progressBar1.Maximum = 1000;
             progressBar1.Name = "progressBar1";
-            progressBar1.Size = new Size(815, 20);
+            progressBar1.Size = new Size(986, 20);
             progressBar1.TabIndex = 2;
             progressBar1.Visible = false;
             // 
@@ -239,7 +335,7 @@
             series1.Legend = "Legend1";
             series1.Name = "Series1";
             chart1.Series.Add(series1);
-            chart1.Size = new Size(605, 322);
+            chart1.Size = new Size(776, 381);
             chart1.TabIndex = 5;
             chart1.Text = "chart1";
             chart1.MouseClick += chartsMouseClick;
@@ -252,7 +348,7 @@
             panel3.Dock = DockStyle.Fill;
             panel3.Location = new Point(0, 78);
             panel3.Name = "panel3";
-            panel3.Size = new Size(815, 322);
+            panel3.Size = new Size(986, 381);
             panel3.TabIndex = 7;
             // 
             // pointGrid
@@ -262,33 +358,30 @@
             pointGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             pointGrid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             pointGrid.Dock = DockStyle.Right;
-            pointGrid.Location = new Point(605, 0);
+            pointGrid.Location = new Point(776, 0);
             pointGrid.Margin = new Padding(3, 2, 3, 2);
             pointGrid.Name = "pointGrid";
             pointGrid.ReadOnly = true;
             pointGrid.RowHeadersVisible = false;
             pointGrid.RowTemplate.Height = 29;
-            pointGrid.Size = new Size(210, 322);
+            pointGrid.Size = new Size(210, 381);
             pointGrid.TabIndex = 6;
             pointGrid.CellClick += pointGridClick;
-            // 
-            // errorProvider1
-            // 
-            errorProvider1.ContainerControl = this;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(815, 450);
+            ClientSize = new Size(986, 509);
             Controls.Add(panel3);
             Controls.Add(panel2);
             Controls.Add(panel1);
             Controls.Add(flowLayoutPanel1);
             Name = "Form1";
-            Text = "MemExportAnalyse 1.0.4";
+            Text = "MemExportAnalyse 1.0.6";
             Load += mainFormLoad;
             flowLayoutPanel1.ResumeLayout(false);
+            flowLayoutPanel1.PerformLayout();
             groupSystem.ResumeLayout(false);
             groupSystem.PerformLayout();
             panel1.ResumeLayout(false);
@@ -297,7 +390,6 @@
             ((System.ComponentModel.ISupportInitialize)chart1).EndInit();
             panel3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)pointGrid).EndInit();
-            ((System.ComponentModel.ISupportInitialize)errorProvider1).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -322,7 +414,14 @@
         private Panel panel3;
         private DataGridView pointGrid;
         private ProgressBar progressBar1;
-        private ErrorProvider errorProvider1;
         private CheckBox checkBoxCharts;
+        private Label label1;
+        private TextBox textHeader;
+        private Label label2;
+        private TextBox textHeaderLen;
+        private Label label3;
+        private TextBox textMin;
+        private Label label4;
+        private TextBox textMax;
     }
 }

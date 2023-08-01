@@ -15,8 +15,6 @@ namespace MemExportAnalyse
             DEC,
         };
         private SYSTEM_ENUM system;
-        private const int HEADER_LEN = 24 - 4;
-        private const int DATA_LEN = 4096 * 2;
         //最终数据
         private List<int> datas = new List<int>();
         //数据长度
@@ -78,7 +76,13 @@ namespace MemExportAnalyse
             //十六进制匹配正则表达式（这个区分大小写注意）
             Regex hexReg = new Regex("^[0-9abcdef]+$");
             //缓存数据（最大4个）
-            Queue<int> numQueue = new Queue<int>();
+            Queue<byte> numQueue = new Queue<byte>();
+            //头帧
+            UInt32 parmHeader = 0;
+            //头帧长
+            int parmHeaderLen = 0;
+            int min;
+            int max;
             if (progressBar1.Visible)
             {
                 MessageBox.Show("当前正在处理中......");
@@ -86,7 +90,30 @@ namespace MemExportAnalyse
             }
             if (String.IsNullOrEmpty(fileNameTextBox.Text))
                 return;
-
+            try
+            {
+                parmHeader = Convert.ToUInt32(textHeader.Text, 16);
+                parmHeaderLen = Convert.ToInt32(textHeaderLen.Text);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("头帧参数错误");
+                return;
+            }
+            try
+            {
+                min = Convert.ToInt32(textMin.Text);
+                max = Convert.ToInt32(textMax.Text);
+                if (min > max)
+                {
+                    throw new Exception();
+                }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("帧范围参数错误");
+                return;
+            }
             //数据初始化
             datas.Clear();
             pointTable.Clear();
@@ -96,7 +123,8 @@ namespace MemExportAnalyse
             //头帧的一些参数
             bool isVaild = false;
             int headerLen = 0;
-            int vaildDataLen = 0;
+            int minDataLen = 0;
+            int maxDataLen = 0;
 
             Stream? stream = null;
             StreamReader? streamReader = null;
@@ -161,21 +189,21 @@ namespace MemExportAnalyse
                             if (byteLen == 1)
                             {
                                 num = Convert.ToByte(data, 8 * byteLen);
-                                numQueue.Enqueue(num & 0xff);
+                                numQueue.Enqueue((byte)(num & 0xff));
                             }
                             else if (byteLen == 2)
                             {
                                 num = Convert.ToInt16(data, 8 * byteLen);
-                                numQueue.Enqueue((num >> 8) & 0xff);
-                                numQueue.Enqueue(num & 0xff);
+                                numQueue.Enqueue((byte)((num >> 8) & 0xff));
+                                numQueue.Enqueue((byte)(num & 0xff));
                             }
                             else if (byteLen == 4)
                             {
                                 num = Convert.ToInt32(data, 8 * byteLen);
-                                numQueue.Enqueue((num >> 24) & 0xff);
-                                numQueue.Enqueue((num >> 16) & 0xff);
-                                numQueue.Enqueue((num >> 8) & 0xff);
-                                numQueue.Enqueue(num & 0xff);
+                                numQueue.Enqueue((byte)((num >> 24) & 0xff));
+                                numQueue.Enqueue((byte)((num >> 16) & 0xff));
+                                numQueue.Enqueue((byte)((num >> 8) & 0xff));
+                                numQueue.Enqueue((byte)(num & 0xff));
                             }
                             //删除多余数据
                             int dl = numQueue.Count - 4;
@@ -193,10 +221,14 @@ namespace MemExportAnalyse
                                     }
                                     else
                                     {
-                                        datas.Add(num);
-                                        vaildDataLen -= byteLen;
+                                        if (minDataLen <= 0)
+                                        {
+                                            datas.Add(num);
+                                        }
+                                        minDataLen -= byteLen;
+                                        maxDataLen -= byteLen;
                                         //数据读完
-                                        if (vaildDataLen <= 0)
+                                        if (maxDataLen <= 0)
                                         {
                                             isVaild = false;
                                         }
@@ -204,11 +236,12 @@ namespace MemExportAnalyse
                                 }
                                 else
                                 {
-                                    if (numQueue.Count == 4 && numQueue.All(num => num == 0xfd))
+                                    if (numQueue.Count == 4 && parmHeader == BitConverter.ToUInt32(numQueue.ToArray()))
                                     {
                                         isVaild = true;
-                                        headerLen = HEADER_LEN;
-                                        vaildDataLen = DATA_LEN;
+                                        headerLen = parmHeaderLen - 4;
+                                        minDataLen = min;
+                                        maxDataLen = max;
                                     }
                                 }
                             }
@@ -436,6 +469,10 @@ namespace MemExportAnalyse
 
         private void hasHeaderChanged(object sender, EventArgs e)
         {
+            label1.Visible = hasHeader.Checked;
+            label2.Visible = hasHeader.Checked;
+            textHeader.Visible = hasHeader.Checked;
+            textHeaderLen.Visible = hasHeader.Checked;
             analyseClick(null, null);
         }
 
